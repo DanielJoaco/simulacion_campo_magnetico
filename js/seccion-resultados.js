@@ -95,7 +95,7 @@ window.SeccionResultados = (function () {
     }
     if (analisis.length === 0) {
       const tr = document.createElement("tr");
-      const tdv = td(`No hay configuraciones de «${Estado.TIPOS[Estado.tipo]}». Agrégalas o cárgalas del Lab 5 en la sección 1.`);
+      const tdv = td(`No hay configuraciones de «${Estado.TIPOS[Estado.tipo]}». Agrégalas o cárgalas del Lab i9 en la sección 1.`);
       tdv.colSpan = 5;
       tr.appendChild(tdv);
       tbody.appendChild(tr);

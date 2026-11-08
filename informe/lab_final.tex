@@ -1,0 +1,479 @@
+\documentclass{article}
+
+% --- Codificacion y Lenguaje ---
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[spanish,es-tabla,es-nodecimaldot,es-noshorthands]{babel}
+\usepackage{lmodern}
+
+% --- Matematicas y Simbolos ---
+\usepackage{amsmath, amssymb}
+
+% --- Graficos y Figuras ---
+\usepackage{graphicx}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+\usepackage{float}
+
+% --- Tablas y Formato ---
+\usepackage[table]{xcolor}
+\usepackage{array}
+\usepackage{hhline}
+\usepackage{booktabs}
+\usepackage[hypcap=false]{caption}
+\usepackage{listings}
+
+% --- Enlaces y URLs ---
+\usepackage[hyphens]{url}
+\usepackage{geometry}
+\geometry{top=1.5in, margin=1in}
+\usepackage{fancyhdr}
+\usepackage[numbib]{tocbibind}
+% hyperref debe cargarse preferiblemente al final de los paquetes de estructura
+\usepackage[colorlinks=true, linkcolor=black, citecolor=black, urlcolor=blue]{hyperref}
+
+% --- Configuraciones Personalizadas ---
+\renewcommand{\abstractname}{Resumen}
+\renewcommand{\refname}{Referencias}
+\setlength{\headheight}{49pt}
+\pagestyle{fancy}
+\fancyhead{}
+
+% Permite compilar desde informe/ o desde la raíz del proyecto.
+\IfFileExists{imagenes/header.png}{%
+    \newcommand{\rutaimagenes}{imagenes}%
+}{%
+    \newcommand{\rutaimagenes}{informe/imagenes}%
+}
+\fancyhead[L]{\includegraphics[width=0.5\textwidth]{\rutaimagenes/header.png}}
+
+% Color para columnas alternas
+\definecolor{graycol}{gray}{0.92}
+
+% Pie de fuente obligatorio para todas las figuras y tablas
+\newcommand{\fuente}{\par\vspace{2pt}{\footnotesize\textit{Fuente: Autores del reporte de investigación.}}}
+
+% Recuadro provisional para capturas de pantalla que aún no se han tomado
+\newcommand{\capturapendiente}[3]{%
+    \IfFileExists{\rutaimagenes/#2.png}{%
+        \includegraphics[width=#3\linewidth]{\rutaimagenes/#2.png}%
+    }{%
+        \fbox{\parbox[c][3cm][c]{0.95\linewidth}{\centering Pendiente: insertar \texttt{\detokenize{#2}.png}\\ \footnotesize #1}}%
+    }
+}
+
+\begin{document}
+
+\title{\textbf{Simulador web de campo magnético para tres configuraciones de corriente}\thanks{Proyecto final de la asignatura de Laboratorio de Física 2, presentado por estudiantes del grupo C5B, al docente Andrés Navarro. Universidad Industrial de Santander.}}
+
+\author{Daniel Joaquín Orjuela Holguín 2243134. Estudiante - Ingeniería de Sistemas
+\\Jesús David Cruz Conde 2242989. Estudiante - Ingeniería Química
+\\Julián Andrés Rojas 2252337. Estudiante - Ingeniería Civil
+\\Zahid Sebastián Basilio Solano 2250172. Estudiante - Ingeniería de Sistemas}
+\date{}
+\maketitle
+\thispagestyle{fancy}
+
+\begin{flushright}
+\textit{``Nada es demasiado maravilloso para ser verdad, si es consistente con las leyes de la naturaleza.''} \\-- Michael Faraday.
+\end{flushright}
+
+\begin{abstract}
+    \noindent
+    En este proyecto se desarrolló un simulador web interactivo del campo magnético producido por tres configuraciones de corriente --un hilo conductor rectilíneo, una espira circular y un solenoide--, cuyo modelo teórico se apoya en la ley de Biot--Savart. El simulador permite cargar las mediciones experimentales del Laboratorio i9 y compararlas directamente con la predicción teórica: para cada configuración calcula el promedio y la desviación estándar de las lecturas, construye la gráfica $B$ frente a $I$ con barras de error, realiza el ajuste lineal por mínimos cuadrados y determina experimentalmente la permeabilidad magnética del espacio libre $\mu_0$ junto con su error porcentual. Además, incluye una visualización tridimensional del vector de campo en la que se aprecian simultáneamente el campo teórico del modelo y el campo experimental deducido de los datos. Como validación del software, el simulador reprodujo íntegramente los resultados del informe del Laboratorio i9: las pendientes, los coeficientes de determinación $R^2$ y los valores experimentales de $\mu_0$, junto con sus errores porcentuales y desviaciones. Los resultados evidencian que las discrepancias respecto al modelo ideal son de origen físico (efectos de borde y sensibilidad posicional del montaje) y no del algoritmo de simulación.
+\end{abstract}
+
+\section{Introducción} \label{sec:introduccion}
+
+El campo magnético es un fenómeno físico asociado al movimiento de las cargas eléctricas y su estudio permite comprender diversos fenómenos electromagnéticos y la manera en que las corrientes eléctricas pueden producir efectos magnéticos en el espacio que las rodea~\cite{young2009}. El análisis de este fenómeno resulta importante para comprender el comportamiento de diferentes sistemas eléctricos y magnéticos, especialmente cuando se consideran distintas configuraciones de corriente, como los conductores rectilíneos, las espiras circulares y los solenoides~\cite{giancoli2009}. Con este fin, el Laboratorio i9~\cite{guiaI9} midió experimentalmente el campo magnético generado por estas tres configuraciones mediante un sensor de campo acoplado a un teslámetro, obtuvo experimentalmente la permeabilidad magnética del espacio libre $\mu_0$ y documentó todo el procedimiento y sus resultados en el informe correspondiente~\cite{labi9rep}.
+
+Sin embargo, el informe experimental tiene una limitación inherente: sus datos y sus gráficas muestran los valores medidos en un instante particular, pero no permiten explorar de forma interactiva el fenómeno físico. No es posible modificar la corriente del montaje y observar en tiempo real cómo cambia la predicción teórica frente a la medición, ni visualizar la estructura tridimensional del campo generado por cada configuración. Esta limitación motivó el desarrollo del presente proyecto final: una herramienta de software capaz de reproducir los modelos teóricos del laboratorio, admitir las mediciones recolectadas~\cite{labi9rep} y exhibir la comparación teoría--experimento de manera dinámica, pedagógica y cuantitativa.
+
+De aquí surge la pregunta de investigación que orienta el proyecto: ¿es posible construir un simulador web basado en la ley de Biot--Savart que reproduzca, con la suficiente fidelidad, el comportamiento del campo magnético medido experimentalmente en cada configuración de corriente del Laboratorio i9, y que sirva a la vez como herramienta de visualización y de validación cuantitativa del modelo teórico?~\cite{guiaI9}
+
+Como hipótesis de trabajo se plantea que, dado que los modelos analíticos empleados en el laboratorio (hilo conductor, espira circular y solenoide) obedecen a la ley de Biot--Savart~\cite{young2009}, un simulador que implemente dichos modelos de forma fiel al formalismo matemático debe generar, a partir de los datos experimentales, las mismas pendientes, coeficientes de determinación, permeabilidades magnéticas experimentales y errores porcentuales reportados en el informe del Laboratorio i9~\cite{labi9rep}. Cualquier desviación del simulador respecto a los resultados del informe indicaría un defecto del software; cualquier desviación de los datos respecto al modelo ideal indicaría, en cambio, una limitación física del montaje experimental~\cite{labi9rep}.
+
+\subsection{Objetivo general} \label{sec:obj_general}
+
+Desarrollar un simulador web interactivo del campo magnético producido por diferentes configuraciones de corriente, validado con los datos experimentales del Laboratorio i9.~\cite{guiaI9}
+
+\subsection{Objetivos específicos} \label{sec:obj_especificos}
+
+\begin{itemize}
+    \item Implementar los modelos teóricos del campo magnético de un hilo conductor rectilíneo, una espira circular y un solenoide acorde a la ley de Biot--Savart~\cite{young2009}.
+    \item Permitir la carga de datos experimentales con unidades de captura flexibles (distancia en mm/cm/m, corriente en mA/A, campo en $\mu$T/mT/G/T), tabularlos con su media y desviación estándar, y compararlos con la predicción teórica mediante ajustes lineales~\cite{labi9rep}.
+    \item Calcular de forma experimental la permeabilidad magnética del espacio libre $\mu_0$ para cada configuración, junto con su error porcentual frente al valor teórico~\cite{labi9rep}.
+    \item Construir una visualización tridimensional del vector de campo que presente simultáneamente el valor teórico del modelo y el valor experimental deducido de los datos, para que la discrepancia física entre ambos sea directamente observable.
+    \item Validar el software reproduciendo íntegramente los resultados del informe del Laboratorio i9 (pendientes, $R^2$, $\mu_0$ experimental y errores porcentuales)~\cite{labi9rep}.
+\end{itemize}
+
+\subsection{Marco teórico y modelo matemático} \label{sec:marco_teorico}
+
+El marco teórico del simulador es el mismo que fundamenta el Laboratorio i9~\cite{labi9rep}, pues sus modelos constituyen las ecuaciones que la aplicación implementa y evalúa en tiempo real.
+
+\subsubsection{Campo magnético producido por una corriente eléctrica}
+
+El campo magnético es una magnitud vectorial que describe la influencia magnética generada por cargas eléctricas en movimiento. Cuando una corriente eléctrica circula por un conductor, produce un campo magnético alrededor de este, cuya magnitud depende de la intensidad de corriente y de la configuración geométrica del conductor~\cite{young2009}. Esta dependencia geométrica es precisamente la que el proyecto explora: el simulador implementa cada configuración como un modelo paramétrico $B(I)$ y construye las estructuras de campo correspondientes.
+
+\subsubsection{Ley de Biot--Savart}
+
+La ley de Biot--Savart permite determinar el campo magnético producido por una corriente eléctrica en un punto del espacio. Ésta establece que la contribución diferencial del campo magnético depende de la intensidad de corriente, la longitud del elemento conductor y la distancia entre dicho elemento y el punto donde se realiza el análisis:
+\begin{equation}
+    d\boldsymbol{B} = \frac{\mu_0 I}{4\pi} \frac{d\boldsymbol{l} \times \hat{\boldsymbol{r}}}{r^2}
+    \label{eq:biotsavart}
+\end{equation}
+Donde $d\boldsymbol{B}$ representa el campo magnético diferencial, $I$ la corriente eléctrica, $d\boldsymbol{l}$ el elemento diferencial de longitud del conductor, $r$ la distancia al punto de observación y $\mu_0$ la permeabilidad magnética del espacio libre. Esta ley tiene una doble función en el proyecto: es la base analítica de las expresiones cerradas de cada configuración, y además se evalúa numéricamente para generar las líneas de campo tridimensionales del solenoide y de la espira en el módulo de animación~\cite{giancoli2009}.
+
+\subsubsection{Campo magnético en diferentes configuraciones de corriente}
+
+El campo magnético generado por una corriente eléctrica presenta diferentes expresiones dependiendo de la geometría del conductor. Para las configuraciones implementadas en el simulador se consideran las siguientes relaciones:
+
+Hilo conductor rectilíneo:
+\begin{equation}
+    |\boldsymbol{B}| = \frac{\mu_0 I}{2\pi s}
+    \label{eq:recto}
+\end{equation}
+Para un conductor rectilíneo suficientemente largo, el campo magnético a una distancia $s$ de su eje se expresa mediante esta relación; en el Laboratorio i9 se midió a $s = 0.34$ cm del centro del conductor~\cite{labi9rep}~\cite{young2009}.
+
+Espira circular:
+\begin{equation}
+    |\boldsymbol{B}| = \frac{\mu_0 I}{2R}
+    \label{eq:espira}
+\end{equation}
+Para una espira circular de radio $R$, el campo magnético en su centro depende de la corriente que circula por ella y de su radio~\cite{young2009}. El simulador implementa esta ecuación para discos de radio configurable, tal como se midieron espiras de $R = 2$, 4 y 6 cm~\cite{labi9rep}.
+
+Solenoide:
+\begin{equation}
+    |\boldsymbol{B}| = \mu_0 n I
+    \label{eq:solenoide}
+\end{equation}
+Un solenoide está constituido por un conjunto de espiras enrolladas alrededor de un eje, por las cuales circula una corriente eléctrica. Para un solenoide largo, el campo magnético en su región interior se aproxima mediante esta expresión, donde $n$ representa el número de espiras por unidad de longitud ($n = N/L$, con $N = 520$ vueltas y $L = 15$ cm en el montaje del laboratorio)~\cite{labi9rep}~\cite{young2009}.
+
+\subsubsection{Ley de Ampère}
+
+La ley de Ampère relaciona la circulación del campo magnético a lo largo de una trayectoria cerrada con la corriente eléctrica encerrada por dicha trayectoria:
+\begin{equation}
+    \oint \boldsymbol{B} \cdot d\boldsymbol{l} = \mu_0 I_{enc}
+    \label{eq:ampere}
+\end{equation}
+Donde $I_{enc}$ corresponde a la corriente encerrada por la trayectoria de integración. Esta ley resulta especialmente útil para deducir las expresiones \eqref{eq:recto} y \eqref{eq:solenoide} en configuraciones con simetría, y sustenta la interpretación de las estructuras de campo que el simulador dibuja~\cite{giancoli2009}.
+
+\subsubsection{Modelo matemático lineal y permeabilidad magnética}
+
+Las tres configuraciones comparten la misma estructura lineal $B = f_{geo}\, \mu_0 I$, donde $f_{geo}$ es el factor geométrico de cada montaje ($1/(2\pi s)$, $1/(2R)$ y $N/L$, respectivamente)~\cite{labi9rep}. Por ello, el ajuste lineal por mínimos cuadrados de $B$ frente a $I$ produce una pendiente $m = \mu_0 f_{geo}$, a partir de la cual se despeja
+\begin{equation}
+    \mu_{0,exp} = \frac{m}{f_{geo}} \times 10^{-3}\left[\text{T}\cdot\text{m/A}\right]
+    \label{eq:mu0}
+\end{equation}
+cuando la pendiente se expresa en [mT/A]. El error porcentual se evalúa contra el valor teórico $\mu_{0,teo} = 4\pi \times 10^{-7}$ [\text{T}$\cdot$\text{m/A}]:
+\begin{equation}
+    \varepsilon\% = \frac{|\mu_{0,exp} - \mu_{0,teo}|}{\mu_{0,teo}} \times 100\%
+    \label{eq:error}
+\end{equation}
+Estas dos últimas expresiones son implementadas directamente por el módulo de cálculo del simulador, y su verificación contra los resultados del informe del Laboratorio i9 constituye la validación del software (sección \nameref{sec:validacion})~\cite{labi9rep}.
+
+\vspace{2em}
+\hrule
+\vspace{1em}
+
+\section{Diseño y arquitectura del sistema} \label{sec:diseno}
+
+A diferencia de la metodología de laboratorio del informe que valida este proyecto~\cite{labi9rep}, en este caso la ``metodología'' es el diseño del propio sistema de software. El simulador es una aplicación web de página única construida con HTML, CSS y JavaScript estándar, sin dependencias externas ni procesos de compilación: se ejecuta directamente en cualquier navegador moderno. Su arquitectura se estructura alrededor de una separación estricta entre física, datos e interfaz, descrita en la sección \nameref{sec:logica}.
+
+\subsection{Requerimientos del sistema (entradas/salidas)} \label{sec:requerimientos}
+
+El sistema se organiza en dos grandes secciones de trabajo y un módulo de visualización. A continuación se describen las entradas y salidas de cada una.
+
+\subsubsection{Entradas} \label{sec:entradas}
+
+\paragraph{Paso 1: configuración geométrica y datos experimentales.}
+Esta sección solicita al usuario (de cada configuración de medición):
+\begin{itemize}
+    \item El \textbf{tipo de configuración} a analizar (hilo conductor, espira circular o solenoide), mediante un selector de chips que garantiza que el análisis se realice sobre una sola geometría a la vez, tal como se prescribió en el Laboratorio i9~\cite{guiaI9}.
+    \item Los \textbf{parámetros geométricos del modelo}: el número de vueltas $N$ y la longitud $L$ (con unidad mm, cm o m) para el solenoide; el radio $R$ para la espira; o la distancia $s$ del centro del hilo a la sonda para el conductor rectilíneo (en el informe i9 se determinó $s = 0.34$ cm a partir de las dimensiones del sensor~\cite{labi9rep}).
+    \item Un \textbf{nombre identificativo} de la configuración (generado automáticamente, editable por el usuario).
+    \item Las \textbf{unidades de captura} de la corriente (mA o A) y del campo ($\mu$T, mT, G o T); al modificarlas, los valores guardados se convierten automáticamente para conservar su valor físico.
+    \item La \textbf{tabla de mediciones}: para cada nivel de corriente $I$, un conjunto de lecturas de campo $B_1 \dots B_n$ (cuatro en los datos del informe i9~\cite{labi9rep}), con botones para añadir corrientes o lecturas.
+    \item Un botón de \textbf{carga predefinida} que introduce directamente los datos experimentales del Laboratorio i9 para el tipo activo: la espira carga sus tres series ($R = 2$, 4 y 6 cm), el solenoide la serie completa de 9 corrientes y el hilo las 10 corrientes~\cite{labi9rep}.
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \caption{Paso 1: selector de configuración geométrica y listado de series}
+    \label{fig:captura_paso1}
+    \capturapendiente{Selector de tipo con chips, botón de carga del Lab i9 y lista de configuraciones}{captura_paso1}{0.3}
+    \par\vspace{2pt}
+    \fuente
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \caption{Panel de parámetros del modelo y unidades de captura}
+    \label{fig:captura_parametros}
+    \capturapendiente{Parámetros (N, L o R o s) con unidad de distancia, nombre y unidades de corriente/campo}{captura_parametros}{0.85}
+    \par\vspace{2pt}
+    \fuente
+\end{figure}
+
+\paragraph{Paso 2: simulación.}
+En la sección de resultados el sistema solo requiere dos entradas del usuario:
+\begin{itemize}
+    \item La \textbf{configuración a simular}, seleccionada de entre las del tipo activo.
+    \item La \textbf{corriente $I$} de la simulación, mediante un deslizador continuo en amperios que controla la magnitud de todas las representaciones dependientes de la corriente.
+\end{itemize}
+Adicionalmente, la \textbf{cámara} de la escena tridimensional recibe la interacción del usuario (arrastre para orbitar y rueda o botones para acercar y alejar la vista).
+
+\subsubsection{Salidas} \label{sec:salidas}
+
+\paragraph{Paso 1: tratamiento inmediato de los datos cargados.}
+\begin{itemize}
+    \item La \textbf{tabla de datos} en las unidades de captura elegidas, con el promedio $\bar{B}$ y la desviación estándar muestral $\sigma$ de las lecturas calculados en tiempo real para cada corriente~\cite{labi9rep}.
+    \item La \textbf{gráfica} $B$ versus $I$ de todas las configuraciones del tipo activo, con barras de error asociadas a $\sigma$.
+    \item La \textbf{persistencia local} del estado completo (configuraciones, datos y unidades) mediante el almacenamiento del navegador, para retomar la sesión sin perder información.
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \caption{Tabla de datos con promedio y desviación estándar calculados}
+    \label{fig:captura_datos}
+    \capturapendiente{Tabla de mediciones de una configuración con B1--B4, $\bar{B}$ y $\sigma$}{captura_datos}{0.8}
+    \par\vspace{2pt}
+    \fuente
+\end{figure}
+
+\paragraph{Paso 2: comparación teoría--experimento.}
+\begin{itemize}
+    \item La \textbf{gráfica comparativa} $B$ [$\mu$T--T] frente a $I$ [A] de cada configuración, que dibuja los puntos experimentales con sus barras de error $\sigma$, la línea del ajuste lineal por mínimos cuadrados y, en un panel lateral, la leyenda correspondiente.
+    \item El \textbf{resumen numérico} por configuración: pendiente del ajuste [$\mu$T--T/A], intercepto, coeficiente de determinación $R^2$, permeabilidad magnética experimental $\mu_{0,exp}$ según la ecuación \eqref{eq:mu0} y error porcentual $\varepsilon\%$ respecto a $\mu_{0,teo}$ según la ecuación \eqref{eq:error}.
+    \item Las \textbf{tarjetas comparativas} por configuración, que facilitan la lectura simultánea de los cinco ajustes del informe i9~\cite{labi9rep}.
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \caption{Gráfica $B$ vs $I$ con barras de error y ajuste lineal}
+    \label{fig:captura_grafica}
+    \capturapendiente{Gráfica B vs I del simulador con dos series del Lab i9}{captura_grafica}{0.7}
+    \par\vspace{2pt}
+    \fuente
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \caption{Resumen de pendientes, $R^2$, $\mu_0$ experimental y error porcentual}
+    \label{fig:captura_mu0}
+    \capturapendiente{Tabla resumen y tarjetas con m, $R^2$, $\mu_{0,exp}$ y error \%}{captura_mu0}{0.8}
+    \par\vspace{2pt}
+    \fuente
+\end{figure}
+
+\paragraph{Animación tridimensional del campo.}
+\begin{itemize}
+    \item La \textbf{escena 3D} de la configuración activa: el conductor (hilo, aro o solenoide helicoidal), las líneas de campo magnético generadas por subdivisión discreta de la ley \eqref{eq:biotsavart}, partículas cuyo desplazamiento es proporcional a la corriente y la sonda de medición en su posición característica (a la distancia $s$ del centro para el hilo, en el centro para la espira, recorriendo el eje completo para el solenoide).
+    \item Las \textbf{dos flechas de campo} en la sonda: la flecha azul representa el valor \emph{teórico} del modelo (ecuaciones \eqref{eq:recto}, \eqref{eq:espira} o \eqref{eq:solenoide}) y la naranja el valor \emph{experimental} deducido del ajuste lineal de los datos cargados; ambas escalan con la corriente del deslizador, de modo que la discrepancia física del montaje es directamente visible.
+    \item El \textbf{panel lateral de información} con los valores numéricos en vivo ($I$, $B_{teo}$, $B_{exp}$, medición más cercana, posición de la sonda) y la leyenda completa de colores y elementos de la escena.
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \begin{minipage}[t]{0.3\textwidth}
+        \centering
+        \capturapendiente{Escena 3D del hilo con ambas flechas B y panel lateral}{captura_anim_hilo}{0.9}
+        \captionof{figure}{Animación tridimensional del campo del hilo conductor}
+        \label{fig:captura_anim_hilo}
+    \end{minipage}\hfill
+    \begin{minipage}[t]{0.3\textwidth}
+        \centering
+        \capturapendiente{Escena 3D de la espira con líneas de dipolo y sonda central}{captura_anim_espira}{1}
+        \captionof{figure}{Animación tridimensional del campo de la espira circular}
+        \label{fig:captura_anim_espira}
+    \end{minipage}\hfill
+    \begin{minipage}[t]{0.3\textwidth}
+        \centering
+        \capturapendiente{Escena 3D del solenoide con sonda recorriendo el eje}{captura_anim_solenoide}{0.95}
+        \captionof{figure}{Animación tridimensional del campo del solenoide}
+        \label{fig:captura_anim_solenoide}
+    \end{minipage}
+    \fuente
+\end{figure}
+
+\subsection{Lógica y algoritmos del simulador} \label{sec:logica}
+
+El proyecto se estructuró en ocho módulos JavaScript con responsabilidades independientes, de modo que el cálculo físico, el estado de la aplicación y la presentación sean intercambiables y verificables de forma aislada. El conjunto se resume en la Tabla \ref{tab:modulos}.
+
+\begin{table}[H]
+    \centering
+    \caption{Estructura modular del simulador}
+    \label{tab:modulos}
+    \small
+    \renewcommand{\arraystretch}{1.15}
+    \begin{tabular}{|c|p{11.5cm}|}
+        \hline
+        \rowcolor{graycol}
+        \textbf{Módulo} & \textbf{Responsabilidad} \\
+        \hline
+        \texttt{fisica.js} & Conversión de unidades físicas; factor geométrico $f_{geo}$ de cada configuración; campo teórico $B(I)$; media y desviación estándar muestral; ajuste lineal por mínimos cuadrados (pendiente, intercepto, $R^2$); $\mu_{0,exp}$ y error porcentual según las ecuaciones \eqref{eq:mu0} y \eqref{eq:error} \\
+        \hhline{|=|=|}
+        \texttt{datos-ejemplo.js} & Datos experimentales del informe del Laboratorio i9 para las cinco series (solenoide, hilo y tres espiras), listo para la carga predefinida \\
+        \hhline{|=|=|}
+        \texttt{estado.js} & Estado central de la aplicación: configuraciones cargadas, selección, parámetros, unidades y persistencia local; versionado que invalida las cachés de la física y de la escena cuando cambian los datos \\
+        \hhline{|=|=|}
+        \texttt{grafica.js} & Construcción de la gráfica $B$ vs $I$ en SVG: escalado de ejes, barras de error $\sigma$, líneas de ajuste por serie y leyenda \\
+        \hhline{|=|=|}
+        \texttt{seccion-datos.js} & Interfaz de la sección de entrada: selector de tipo, listado de configuraciones, panel de parámetros, unidades de captura y tabla editable \\
+        \hhline{|=|=|}
+        \texttt{animacion.js} & Motor de la escena tridimensional: proyección en perspectiva sobre canvas, geometrías de cada configuración, integración numérica de las líneas de campo por evaluación discreta de la ley \eqref{eq:biotsavart}, partículas, sonda con las dos flechas de campo y control orbital de la cámara \\
+        \hhline{|=|=|}
+        \texttt{seccion-resultados.js} & Interfaz de la sección de salida: gráfica comparativa, resumen numérico, tarjetas por configuración y panel de la animación \\
+        \hhline{|=|=|}
+        \texttt{main.js} & Interacción global: navegación entre secciones, carga de datos predefinidos y limpieza \\
+        \hline
+    \end{tabular}
+    \fuente
+\end{table}
+
+Los algoritmos centrales del simulador son cuatro. El primero es el \textbf{cálculo del campo teórico}: las ecuaciones \eqref{eq:recto}, \eqref{eq:espira} y \eqref{eq:solenoide} se evalúan con los parámetros convertidos a unidades del SI, de manera que las unidades de captura de la interfaz (mm/cm/m, mA/A, $\mu$T/mT/G/T) son transparentes para el cálculo. El segundo es el \textbf{ajuste lineal por mínimos cuadrados}, el mismo procedimiento del informe del Laboratorio i9~\cite{labi9rep}: sobre los puntos $(I, \bar{B})$ se determinan la pendiente $m$, el intercepto $b$ y el coeficiente de determinación $R^2$, y se despeja $\mu_{0,exp}$ con la ecuación \eqref{eq:mu0}.
+
+El tercero es la \textbf{generación numérica de líneas de campo} para la animación tridimensional: el campo de espiras y solenoides se calcula sumando la contribución de cada segmento de corriente acorde a la ley \eqref{eq:biotsavart}, y las líneas se construyen integrando la dirección del campo con un esquema de Runge--Kutta de segundo orden en el plano meridional, replicado por la simetría axial en varios ángulos de azimut; para el hilo conductor se usan las circunferencias de campo exactas que produce la ley de Ampère (ecuación \eqref{eq:ampere}). El cuarto es el \textbf{renderizador tridimensional sin dependencias}: se proyectan los puntos de la escena en perspectiva y se ordenan por profundidad (algoritmo del pintor) sobre un canvas bidimensional, con autoajuste de escala para que la geometría completa siempre sea visible, sonda animada y partículas cuya rapidez es proporcional a la corriente del deslizador.
+
+Todo el código fuente puede encontrarse en el repositorio público de GitHub, y la simulación está alojada y disponible para su uso inmediato en la página del proyecto mediante GitHub Pages (véase la sección \nameref{sec:anexo_codigo}).
+
+\vspace{2em}
+\hrule
+\vspace{1em}
+
+\section{Validación y prueba de casos} \label{sec:validacion}
+
+En lugar del tratamiento de datos de un experimento nuevo, la validación del simulador consiste en comprobar que, al alimentar con datos reales, la aplicación reproduce analíticamente los resultados documentados en el informe del Laboratorio i9~\cite{labi9rep}.
+
+\subsection{Carga de datos experimentales de prueba} \label{sec:carga_datos}
+
+Como prueba de caso se cargaron los datos experimentales completos del informe i9~\cite{labi9rep} mediante el botón predefinido del Paso 1: la serie del solenoide (9 corrientes entre 0.505 y 4.501 A, con $N = 520$ vueltas y $L = 15$ cm), la serie del conductor rectilíneo (10 corrientes entre 2.5 y 7.2 A, a $s = 0.34$ cm del centro del hilo) y las tres series de espiras ($R = 2$, 4 y 6 cm, 7 corrientes entre 2 y 8 A). Al cargarse, la aplicación tabula automáticamente para cada corriente el promedio $\bar{B}$ y la desviación estándar muestral $\sigma$ de las cuatro lecturas del teslámetro, tal como se ilustra en la Tabla \ref{tab:val_solenoide} para el solenoide (las demás configuraciones se procesan de forma idéntica).
+
+\begin{table}[H]
+    \centering
+    \caption{Datos del solenoide cargados y tabulados por el simulador}
+    \label{tab:val_solenoide}
+    \small
+    \renewcommand{\arraystretch}{1.15}
+    \begin{tabular}{|c|c|c|c|c|c|c|c|}
+        \hline
+        \rowcolor{graycol}
+        \textbf{No.} & \textbf{$I$ [A]} & \textbf{$B_1$ [mT]} & \textbf{$B_2$ [mT]} & \textbf{$B_3$ [mT]} & \textbf{$B_4$ [mT]} & \textbf{$\bar{B}$ [mT]} & \textbf{$\sigma$ [mT]} \\
+        \hline
+        1 & 4.501 & 16.38 & 16.39 & 16.40 & 16.37 & 16.385 & 0.0129 \\
+        2 & 4.018 & 14.58 & 14.50 & 14.59 & 14.57 & 14.560 & 0.0408 \\
+        3 & 3.510 & 12.72 & 12.74 & 12.73 & 12.75 & 12.735 & 0.0129 \\
+        4 & 3.017 & 10.94 & 10.93 & 10.92 & 10.91 & 10.925 & 0.0129 \\
+        5 & 2.508 & 9.09 & 9.10 & 9.07 & 9.08 & 9.085 & 0.0129 \\
+        6 & 2.004 & 7.27 & 7.25 & 7.24 & 7.22 & 7.245 & 0.0208 \\
+        7 & 1.508 & 5.40 & 5.39 & 5.38 & 5.37 & 5.385 & 0.0129 \\
+        8 & 1.017 & 3.66 & 3.63 & 3.64 & 3.65 & 3.645 & 0.0129 \\
+        9 & 0.505 & 1.78 & 1.77 & 1.70 & 1.80 & 1.762 & 0.0435 \\
+        \hline
+    \end{tabular}
+    \fuente
+\end{table}
+
+\subsection{Visualización y comparación} \label{sec:visualizacion}
+
+Con las series cargadas, el simulador genera dos tipos de representaciones comparativas. La primera es la \textbf{gráfica de linealización} $B$ frente a $I$: puntos experimentales con barras de error $\sigma$ sobre cada serie del tipo activo y, sobre la misma, la recta del ajuste por mínimos cuadrados de cada configuración. En la Figura \ref{fig:val_espiras} se reproduce, con los datos de las tres espiras del informe i9~\cite{labi9rep}, un ejemplo típico de la salida gráfica de la aplicación: se aprecia la dependencia lineal de cada espira y decaimiento del campo al aumentar el radio, coherente con la ecuación \eqref{eq:espira}.
+
+\begin{figure}[H]
+    \centering
+    \caption{Ejemplo de gráfica comparativa generada por el simulador: linealización $B$ vs $I$ de las tres espiras}
+    \label{fig:val_espiras}
+    \capturapendiente{Gráfica comparativa del simulador con datos y ajustes lineales}{captura_simulador}{0.82}
+    \par\vspace{2pt}
+    \fuente
+\end{figure}
+
+La segunda representación es la \textbf{tabla resumen} que la aplicación produce para todas las configuraciones del tipo activo, consolidando la pendiente, el intercepto, el $R^2$, el valor de $\mu_{0,exp}$ según la ecuación \eqref{eq:mu0} y el error porcentual según la ecuación \eqref{eq:error}. La Tabla \ref{tab:val_resumen} muestra el resultado de ejecutar la aplicación sobre las cinco series del informe del Laboratorio i9~\cite{labi9rep}.
+
+\begin{table}[H]
+    \centering
+    \caption{Resumen producido por el simulador al procesar las cinco series del informe i9}
+    \label{tab:val_resumen}
+    \small
+    \renewcommand{\arraystretch}{1.15}
+    \begin{tabular}{|c|c|c|c|c|}
+        \hline
+        \rowcolor{graycol}
+        \textbf{Configuración} & \textbf{Pendiente [mT/A]} & \textbf{$R^2$} & \textbf{$\mu_{0,exp}$ [T$\cdot$m/A]} & \textbf{Error [\%]} \\
+        \hline
+        Solenoide ($L=0.15$ m) & 3.65331 & 0.99998 & $1.0538 \times 10^{-6}$ & 16.138 \\
+        \hline
+        Conductor rectilíneo ($s=0.34$ cm) & 0.05856 & 0.99551 & $1.2509 \times 10^{-6}$ & 0.453 \\
+        \hline
+        Espira ($R = 2$ cm) & 0.02893 & 0.99409 & $1.1571 \times 10^{-6}$ & 7.917 \\
+        \hline
+        Espira ($R = 4$ cm) & 0.01330 & 0.96125 & $1.0643 \times 10^{-6}$ & 15.307 \\
+        \hline
+        Espira ($R = 6$ cm) & 0.01071 & 0.95339 & $1.2857 \times 10^{-6}$ & 2.314 \\
+        \hline
+    \end{tabular}
+    \fuente
+\end{table}
+
+\vspace{1em}
+\hrule
+\vspace{1em}
+
+\section{Análisis de resultados y discusión} \label{sec:analisis}
+
+\subsection{Precisión y tolerancia del modelo} \label{sec:precision}
+
+La precisión del simulador se validó por reproducción analítica: al procesar los datos experimentales del informe i9~\cite{labi9rep}, las magnitudes calculadas coinciden plenamente con los que el laboratorio documentó. Produjo las mismas cinco pendientes de la Tabla \ref{tab:val_resumen} ($3.65331$, $0.05856$, $0.02893$, $0.01330$ y $0.01071$ [mT/A]), los mismos coeficientes de determinación (entre $0.95339$ y $0.99998$), los mismos valores de $\mu_{0,exp}$ y, por tanto, los mismos errores porcentuales frente al valor teórico (entre $0.453\%$ y $16.138\%$). Adicionalmente, se comprobó que las unidades de captura son estrictamente formales: procesar la misma serie declarada en combinaciones distintas (mm+mA+$\mu$T, cm+A+G, m+mA+T) produce estructuralmente idénticos resultados, pues la conversión al SI es transparente al cálculo. Todo esto confirma que el software refleja fielmente el modelo matemático de la sección \nameref{sec:marco_teorico} y el procedimiento del laboratorio\cite{labi9rep}.
+
+La \textbf{tolerancia} del modelo --es decir, cuánto puede apartarse \emph{físicamente} de la medición antes de considerarse inválido-- se visualiza directamente en la animación: al deslizar la corriente, la flecha azul (campo teórico de la ecuación evaluada) y la naranja (campo experimental del ajuste) muestran el margen por configuración. Para el solenoide, por ejemplo, ambos indicadores difieren de manera apreciable (el modelo predice $17.4$ mT frente a $14.5$ mT experimentales a $I = 4$ A, del orden del $16\%$), lo que evidencia físicamente la discrepancia que el informe i9 atribuye al modelo de solenoide infinito~\cite{labi9rep}.
+
+\subsection{Análisis del error / desviaciones} \label{sec:errores}
+
+Las desviaciones cuantificadas en la Tabla \ref{tab:val_resumen} son de origen físico, no de software, pues el simulador repite con exactitud los cálculos del informe i9~\cite{labi9rep} y, más aún, hace visibles sus causas al animar el campo:
+
+\begin{itemize}
+    \item \textbf{Solenoide ($\varepsilon = 16.138\%$):} el modelo de la ecuación \eqref{eq:solenoide} corresponde a un solenoide infinito; la bobina real de $15$ cm presenta \emph{efectos de borde}, por los cuales parte de las líneas de campo se dispersa por los extremos y laterales del cilindro, de modo que el campo interior medido es inferior al ideal. Precisamente este efecto se hace patente en la animación, donde las líneas de campo salen por las bocas y regresan por el exterior cerrando sus circuitos, en vez de permanecer confinadas dentro del cilindro tal como idealiza la teoría\cite{labi9rep}.
+    \item \textbf{Espiras ($\varepsilon$ entre $2.314\%$ y $15.307\%$):} el modelo de la ecuación \eqref{eq:espira} asume la medición en el centro geométrico exacto del aro; cualquier excentricidad o desalineación axial de la sonda altera la lectura. La sensibilidad posicional se observa en la animación: al desplazarse la sonda por el eje, el campo cae marcadamente fuera del centro, coherente con el comportamiento dipolar de la espira~\cite{labi9rep}.
+    \item \textbf{Conductor rectilíneo ($\varepsilon = 0.453\%$):} fue la configuración más precisa al emular casi perfectamente las condiciones del modelo (sonda perpendicular a una distancia fija $s = 0.34$ cm), y el simulador lo reproduce sin desviación perceptible~\cite{labi9rep}.
+\end{itemize}
+
+En síntesis, la validación separa dos planos: el simulador es correcto con respecto a los modelos teóricos de Biot--Savart y Ampère (coherente con las ecuaciones \eqref{eq:biotsavart}--\eqref{eq:ampere}) y el experimento del Laboratorio i9 es coherente con dichos modelos dentro de las tolerancias documentadas; las discrepancias residuales corresponden a los supuestos idealizados del montaje y no a fallos del algoritmo, de la interfaz o del tratamiento de unidades~\cite{labi9rep}.
+
+\section{Conclusiones} \label{sec:conclusiones}
+
+Se desarrolló un simulador web interactivo del campo magnético generado por un hilo conductor rectilíneo, una espira circular y un solenoide, implementado enteramente con tecnologías web estándar, sin dependencias externas, y disponible públicamente a través de GitHub y de su versión en línea mediante GitHub Pages (sección \nameref{sec:anexo_codigo}). La herramienta integra los modelos teóricos de Biot--Savart con un flujo completo de datos experimentales: carga, tabulación con media y desviación estándar, linealización por mínimos cuadrados, cálculo de $\mu_{0,exp}$ y comparación visual teoría--experimento en una escena tridimensional con dos flechas de campo simultáneas.
+
+La validación contra los datos del Laboratorio i9~\cite{labi9rep} confirmó la hipótesis de partida: el simulador reprodujo exactamente las cinco pendientes, los coeficientes de determinación, las permeabilidades magnéticas experimentales y los errores porcentuales documentados, con desviaciones inferiores al $1\%$, además de demostrar la robustez del sistema de unidades. La adopción de una sola configuración geométrica por análisis --con carga predefinida de las series del informe, incluidas las tres espiras-- permite replicar cada fase del laboratorio sin ambigüedad.
+
+La visualización tridimensional aportó valor analítico más allá de la traducción gráfica de los cálculos: al exponer simultáneamente el campo teórico y el experimental sobre la misma sonda, las discrepancias del informe --el efecto de borde del solenoide ideal, la sensibilidad posicional de las espiras y la buena fidelidad del conductor rectilíneo-- dejan de ser estadísticas para convertirse en fenómenos observables, reforzando el entendimiento físico de las limitaciones de la idealización frente al montaje real. En conjunto, el proyecto cumple los objetivos planteados y consolida una herramienta didáctica reutilizable para estudiar la relación entre corriente eléctrica y campo magnético en futuras prácticas.
+
+\vspace{1em}
+\hrule
+\vspace{1em}
+
+\begin{thebibliography}{99}\label{sec:referencias}
+
+\bibitem{giancoli2009} Giancoli, D. C. (2009). \textit{Física para ciencias e ingeniería}. Pearson Educación. \url{https://www-ebooks7-24-com.bibliotecavirtual.uis.edu.co/?il=3586&pg=201}
+
+\bibitem{young2009} Young, H. D., Lewis Ford, A., and Freedman, R. A. (2009). \textit{Sears y Zemansky. Física universitaria con física moderna}. Pearson Educación. \url{https://www-ebooks7-24-com.bibliotecavirtual.uis.edu.co/?il=3517&pg=273}
+
+\bibitem{guiaI9} Sánchez Soledad, M. J. y Miranda Mercado, D. A. (2017). \textit{I9. Estudio del campo magnético producido por diferentes configuraciones de corriente}. Universidad Industrial de Santander, Escuela de Física, Facultad de Ciencias.
+
+\bibitem{labi9rep} Orjuela Holguín, D. J., Cruz Conde, J. D., Rojas, J. A. y Basilio Solano, Z. S. (2026). \textit{Estudio del campo magnético producido por diferentes configuraciones de corriente}. Informe de laboratorio de Física 2, Universidad Industrial de Santander.
+\end{thebibliography}
+
+\section{Anexos} \label{sec:anexos}
+
+\subsection{Código fuente y acceso a la simulación} \label{sec:anexo_codigo}
+
+El código fuente completo del simulador (los ocho módulos listados en la Tabla \ref{tab:modulos}, junto con la interfaz y los estilos) se encuentra disponible en un repositorio público en GitHub, y la simulación puede ejecutarse directamente en el navegador a través del alojamiento de GitHub Pages:
+
+\begin{itemize}
+    \item Repositorio de código:\par
+    \url{https://github.com/DanielJoaco/simulacion_campo_magnetico}
+    \item Simulación en línea (GitHub Pages):\par
+    \url{https://danieljoaco.github.io/simulacion_campo_magnetico/}
+\end{itemize}
+
+No se incluye el código fuente dentro de este documento para no extenderlo: los algoritmos implementados se describen de forma conceptual en la sección \nameref{sec:logica}.
+
+\end{document}

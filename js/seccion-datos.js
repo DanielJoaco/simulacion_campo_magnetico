@@ -34,7 +34,7 @@ window.SeccionDatos = (function () {
     hint.innerHTML = textosHint()[Estado.tipo];
 
     const btnCargar = document.getElementById("btn-cargar-ejemplo");
-    if (btnCargar) btnCargar.textContent = `⤓ Cargar datos del Lab 5 (${Estado.TIPOS[Estado.tipo]})`;
+    if (btnCargar) btnCargar.textContent = `⤓ Cargar datos del Lab i9 (${Estado.TIPOS[Estado.tipo]})`;
   }
 
   function textosHint() {
@@ -99,7 +99,7 @@ window.SeccionDatos = (function () {
     if (!serie) {
       const p = document.createElement("p");
       p.className = "hint";
-      p.textContent = "No hay configuraciones de este tipo. Agrega una o carga los datos del Lab 5.";
+      p.textContent = "No hay configuraciones de este tipo. Agrega una o carga los datos del Lab i9.";
       panel.appendChild(p);
       return;
     }
@@ -139,7 +139,7 @@ window.SeccionDatos = (function () {
     } else if (serie.config === "hilo") {
       const nota = document.createElement("p");
       nota.className = "hint";
-      nota.textContent = "La sonda no puede colocarse dentro del conductor (teóricamente s = 0 es infinito). En el lab se mide a una distancia s del CENTRO del hilo: en el Lab 5 se calculó s = 0.34 cm a partir de las dimensiones del sensor. La longitud del hilo no interviene en el modelo ni en el Lab 5.";
+      nota.textContent = "La sonda no puede colocarse dentro del conductor (teóricamente s = 0 es infinito). En el lab se mide a una distancia s del CENTRO del hilo: en el Lab i9 se calculó s = 0.34 cm a partir de las dimensiones del sensor. La longitud del hilo no interviene en el modelo ni en el Lab i9.";
       panel.appendChild(nota);
     }
 
