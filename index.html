@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Simulador de Campo Magnético — Lab 5</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <header>
+    <div>
+      <h1>Simulador de Campo Magnético</h1>
+      <p class="sub">Hilo rectilíneo · Espira circular · Solenoide — Modelo teórico (Biot–Savart) vs datos experimentales</p>
+    </div>
+    <div class="acciones-globales">
+      <button id="btn-cargar-ejemplo" class="btn secundario">Cargar datos del Lab 5</button>
+      <button id="btn-limpiar" class="btn peligro">Limpiar todo</button>
+    </div>
+  </header>
+
+  <nav id="pestañas">
+    <button class="pestaña activa" data-tab="datos">1. Parámetros y datos</button>
+    <button class="pestaña" data-tab="resultados">2. Simulación y resultados</button>
+  </nav>
+
+  <main>
+    <!-- ================= SECCIÓN 1: PARÁMETROS Y DATOS ================= -->
+    <section id="seccion-datos" class="tab-panel activa">
+      <div class="columna-lista">
+        <div class="tarjeta tarjeta-lista-serie">
+          <h2>Paso 1: configuración geométrica</h2>
+          <div id="selector-tipo" class="chips-tipo"></div>
+          <p id="hint-tipo" class="hint"></p>
+          <h2>Paso 2: configuraciones y datos</h2>
+          <button id="btn-agregar-serie" class="btn primario bloque">+ Agregar configuración</button>
+          <ul id="lista-series"></ul>
+          <div id="lista-vacia" class="hint" style="display:none">
+            Aún no hay configuraciones de este tipo. Agrega una o carga los datos del Lab 5.
+          </div>
+        </div>
+      </div>
+
+      <div class="columna-edicion">
+        <div id="panel-config" class="tarjeta"></div>
+        <div id="panel-datos" class="tarjeta"></div>
+      </div>
+    </section>
+
+    <!-- ================= SECCIÓN 2: SIMULACIÓN Y RESULTADOS ================= -->
+    <section id="seccion-resultados" class="tab-panel">
+      <div id="contenedor-grafica" class="tarjeta"></div>
+      <div id="contenedor-resumen" class="tarjeta"></div>
+      <div id="contenedor-tarjetas" class="grid-tarjetas"></div>
+      <div id="contenedor-animacion" class="tarjeta"></div>
+    </section>  </main>
+
+  <footer>
+    <p>Proyecto final — Física 2 (UIS) · Basado en el Laboratorio 5: campo magnético de corrientes
+    (Biot–Savart). Los datos de ejemplo corresponden a las mediciones del informe.</p>
+  </footer>
+
+  <script src="js/datos-ejemplo.js"></script>
+  <script src="js/fisica.js"></script>
+  <script src="js/estado.js"></script>
+  <script src="js/grafica.js"></script>
+  <script src="js/seccion-datos.js"></script>
+  <script src="js/animacion.js"></script>
+  <script src="js/seccion-resultados.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
