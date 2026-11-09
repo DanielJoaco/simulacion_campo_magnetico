@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026/Arch Linux) (preloaded format=pdflatex 2026.10.13)  8 NOV 2026 17:35
+This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026/Arch Linux) (preloaded format=pdflatex 2026.10.13)  8 NOV 2026 22:55
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -841,21 +841,21 @@ File: imagenes/header.png Graphic file (type png)
 Package pdftex.def Info: imagenes/header.png  used on input line 268.
 (pdftex.def)             Requested size: 234.8775pt x 45.06195pt.
  [6 <./imagenes/captura_datos.png (PNG copy)> <./imagenes/captura_grafica.png (PNG copy)>]
-<imagenes/captura_anim_hilo.png, id=219, 547.04375pt x 531.9875pt>
+<imagenes/captura_anim_hilo.png, id=219, 604.2575pt x 536.0025pt>
 File: imagenes/captura_anim_hilo.png Graphic file (type png)
 <use imagenes/captura_anim_hilo.png>
 Package pdftex.def Info: imagenes/captura_anim_hilo.png  used on input line 280.
-(pdftex.def)             Requested size: 126.83427pt x 123.33676pt.
-<imagenes/captura_anim_espira.png, id=220, 550.055pt x 479.7925pt>
+(pdftex.def)             Requested size: 119.7896pt x 106.25804pt.
+<imagenes/captura_anim_espira.png, id=220, 601.24625pt x 457.71pt>
 File: imagenes/captura_anim_espira.png Graphic file (type png)
 <use imagenes/captura_anim_espira.png>
 Package pdftex.def Info: imagenes/captura_anim_espira.png  used on input line 286.
-(pdftex.def)             Requested size: 140.92793pt x 122.92747pt.
-<imagenes/captura_anim_solenoide.png, id=221, 566.115pt x 500.87125pt>
+(pdftex.def)             Requested size: 140.92793pt x 107.2825pt.
+<imagenes/captura_anim_solenoide.png, id=221, 546.04pt x 536.0025pt>
 File: imagenes/captura_anim_solenoide.png Graphic file (type png)
 <use imagenes/captura_anim_solenoide.png>
 Package pdftex.def Info: imagenes/captura_anim_solenoide.png  used on input line 292.
-(pdftex.def)             Requested size: 133.8811pt x 118.44609pt.
+(pdftex.def)             Requested size: 112.74277pt x 110.66638pt.
 LaTeX Font Info:    Trying to load font information for T1+lmtt on input line 314.
  (/usr/share/texmf-dist/tex/latex/lm/t1lmtt.fd
 File: t1lmtt.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
@@ -914,7 +914,7 @@ Here is how much of TeX's memory you used:
  40 hyphenation exceptions out of 8191
  99i,15n,118p,1476b,559s stack positions out of 10000i,1000n,20000p,200000b,200000s
 </usr/share/texmf-dist/fonts/type1/public/lm/lmbx10.pfb></usr/share/texmf-dist/fonts/type1/public/lm/lmbx12.pfb></usr/share/texmf-dist/fonts/type1/public/lm/lmbx9.pfb></usr/share/texmf-dist/fonts/type1/public/lm/lmex10.pfb></usr/share/texmf-dist/fonts/type1/public/lm/lmmi10.pfb></usr/share/texmf-dist/fonts/type1/public/lm/lmmi6.pfb></usr/share/texmf-dist/fonts/type1/public/lm/lmmi7.pfb></usr/share/texmf-dist/fonts/type1/public/lm/lmmi9.pfb></usr/share/texmf-dist/fonts/type1/public/lm/lmmib10.pfb></usr/share/texmf-dist/fonts/type1/public/lm/lmr10.pfb></usr/share/texmf-dist/fonts/type1/public/lm/lmr12.pfb></usr/share/texmf-dist/fonts/type1/public/lm/lmr6.pfb></usr/share/texmf-dist/fonts/type1/public/lm/lmr7.pfb></usr/share/texmf-dist/fonts/type1/public/lm/lmr8.pfb></usr/share/texmf-dist/fonts/type1/public/lm/lmr9.pfb></usr/share/texmf-dist/fonts/type1/public/lm/lmri10.pfb></usr/share/texmf-dist/fonts/type1/public/lm/lmri8.pfb></usr/share/texmf-dist/fonts/type1/public/lm/lmsy10.pfb></usr/share/texmf-dist/fonts/type1/public/lm/lmsy6.pfb></usr/share/texmf-dist/fonts/type1/public/lm/lmsy7.pfb></usr/share/texmf-dist/fonts/type1/public/lm/lmsy9.pfb></usr/share/texmf-dist/fonts/type1/public/lm/lmtt10.pfb></usr/share/texmf-dist/fonts/type1/public/lm/lmtt9.pfb>
-Output written on lab_final.pdf (12 pages, 1186936 bytes).
+Output written on lab_final.pdf (12 pages, 1283903 bytes).
 PDF statistics:
  435 PDF objects out of 1000 (max. 8388607)
  357 compressed objects within 4 object streams

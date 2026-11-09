@@ -54,13 +54,16 @@ window.Animacion = (function () {
   }
 
   // punto 3D proyectado: {sx, py, z(profundidad), pers}
+  // OJO cámara diestra: mirando hacia +Z con arriba = +Y, el "derecha de
+  // pantalla" es −X (derecha × arriba = hacia el espectador). Usar +x1 espejaría
+  // toda la escena y haría verse la regla de la mano derecha invertida.
   function P(p) {
     const x1 = p.x * proy.cy + p.z * proy.sy;
     const z1 = -p.x * proy.sy + p.z * proy.cy;
     const y2 = p.y * proy.cp - z1 * proy.sp;
     const z2 = p.y * proy.sp + z1 * proy.cp;
     const pers = proy.f / (proy.dist + z2);
-    return { sx: proy.px0 + x1 * pers, py: proy.py0 - y2 * pers, z: z2, pers };
+    return { sx: proy.px0 - x1 * pers, py: proy.py0 - y2 * pers, z: z2, pers };
   }
 
   /* ======================= geometrías de cada tipo ======================= */

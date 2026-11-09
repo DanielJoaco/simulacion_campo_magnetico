@@ -1,6 +1,6 @@
 # Fdb version 4
-["pdflatex"] 1794177326.96043 "/home/danieljoaco/Documents/UIS/Latex/Fisica 2/Proyecto Final/informe/lab_final.tex" "lab_final.pdf" "lab_final" 1794177327.92495 0
-  "/home/danieljoaco/Documents/UIS/Latex/Fisica 2/Proyecto Final/informe/lab_final.tex" 1794177325.6542 39674 485cecb11795cd7a8e95a44b56fde63a ""
+["pdflatex"] 1794196559.26536 "/home/danieljoaco/Documents/UIS/Latex/Fisica 2/Proyecto Final/informe/lab_final.tex" "lab_final.pdf" "lab_final" 1794196560.35536 0
+  "/home/danieljoaco/Documents/UIS/Latex/Fisica 2/Proyecto Final/informe/lab_final.tex" 1794196559.05027 39674 453f7a5b1ba5e0ec5020d478389ded84 ""
   "/usr/share/texmf-dist/fonts/enc/dvips/lm/lm-ec.enc" 1775415801 2375 baa924870cfb487815765f9094cf3728 ""
   "/usr/share/texmf-dist/fonts/enc/dvips/lm/lm-mathex.enc" 1775415801 3486 c7eadf5dcc57b3b2d11736679f6636ba ""
   "/usr/share/texmf-dist/fonts/enc/dvips/lm/lm-mathit.enc" 1775415801 2405 5dcf2c1b967ee25cc46c58cd52244aed ""
@@ -268,9 +268,9 @@
   "/usr/share/texmf-dist/web2c/texmf.cnf" 1775415801 43569 fd570f2fa160877d211e859f687312ba ""
   "/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map" 1791936578 5381098 9f966685d344a3d34adbc94f52661a01 ""
   "/var/lib/texmf/web2c/pdftex/pdflatex.fmt" 1791936567 3113353 b748e0af63a3f34593aae4e592cf772e ""
-  "imagenes/captura_anim_espira.png" 1794175933.5306 143478 a620886ee4d10d6f47b13ccbdadb1052 ""
-  "imagenes/captura_anim_hilo.png" 1794175984.54225 138857 8e79e6b919e667d390993638818624cb ""
-  "imagenes/captura_anim_solenoide.png" 1794175865.97388 161194 b2bbeba813f77f0340ccbdfb9f8a8b59 ""
+  "imagenes/captura_anim_espira.png" 1794196249.69184 154757 6c4753d6942e38806a5dee7f1dcaf6ae ""
+  "imagenes/captura_anim_hilo.png" 1794196329.34042 169829 0b69db144262f85697df929fb3f2a30d ""
+  "imagenes/captura_anim_solenoide.png" 1794196424.5105 216068 3b60210cbc4f9b772882280550b7eba5 ""
   "imagenes/captura_datos.png" 1794175587.23147 62016 b50c97b48e057eae4f28c986102e94a0 ""
   "imagenes/captura_grafica.png" 1794175672.30885 40562 f74afe533662dc1f37981cf049b34492 ""
   "imagenes/captura_mu0.png" 1794175784.47332 27655 c1ae807340677039ddaacd191ed25b80 ""
@@ -278,8 +278,8 @@
   "imagenes/captura_paso1.png" 1794175267.94588 37050 ea3212fd9d0775f83d733a76ddc3a8e5 ""
   "imagenes/captura_simulador.png" 1794176260.7432 70414 135b8e666a7da969ce65d36ec55ca452 ""
   "imagenes/header.png" 1794172913.30469 39350 e16492ac82f853aeabeeeae0c1cb156e ""
-  "lab_final.aux" 1794177327.80872 10856 832dacf1e7b6c227f4fc0a7fa8331845 "pdflatex"
-  "lab_final.out" 1794177327.81172 4933 8ff324ddef37c030a14411927cd8e335 "pdflatex"
+  "lab_final.aux" 1794196560.24385 10856 832dacf1e7b6c227f4fc0a7fa8331845 "pdflatex"
+  "lab_final.out" 1794196560.24585 4933 8ff324ddef37c030a14411927cd8e335 "pdflatex"
   (generated)
   "lab_final.aux"
   "lab_final.log"
